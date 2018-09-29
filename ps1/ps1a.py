@@ -25,7 +25,21 @@ def load_cows(filename):
     a dictionary of cow name (string), weight (int) pairs
     """
     # TODO: Your code here
-    pass
+    
+    print("Loading word list from file...")
+    # inFile: file
+    inFile = open(filename, 'r')
+    # wordlist: list of strings
+    cows = {}
+    for line in inFile:
+        line_split = line.rstrip('\n').split(',')
+        cows[line_split[0]] = int(line_split[1])
+    print(len(cows), "cows loaded")
+    
+    inFile.close()
+    
+    return cows
+
 
 # Problem 2
 def greedy_cow_transport(cows,limit=10):
@@ -51,6 +65,40 @@ def greedy_cow_transport(cows,limit=10):
     trips
     """
     # TODO: Your code here
+    import operator
+    x = cows
+    sorted_x = sorted(x.items(), key=operator.itemgetter(1), reverse = True)
+    print(sorted_x)
+    print("\n")
+    manifest_weights = []
+    manifest_names = []
+    trip_weights = []
+    trip_names = []
+    for i in range(len(cows)):
+        
+        if (sum(trip_weights)+sorted_x[i][1]) <= limit:
+            trip_names.append(sorted_x[i][0])
+            trip_weights.append(sorted_x[i][1])
+            
+        else:
+            manifest_names.append(trip_names)
+            manifest_weights.append(trip_weights)
+            trip_weights = []
+            trip_names = []
+            trip_names.append(sorted_x[i][0])
+            trip_weights.append(sorted_x[i][1])
+            
+        if i==len(cows)-1:
+            manifest_names.append(trip_names)
+            manifest_weights.append(trip_weights)
+            
+    
+    return manifest_names
+    
+    
+        
+        
+
     pass
 
 # Problem 3
@@ -76,7 +124,28 @@ def brute_force_cow_transport(cows,limit=10):
     trips
     """
     # TODO: Your code here
-    pass
+    import ps1_partition
+    
+    partitions = get_partitions(cows)
+    min_trips = 10
+    
+    for partition in partitions:
+        overweight_flag = False
+
+        for trip in partition:
+            trip_weight = 0
+            
+            for name in trip:
+                trip_weight += cows[name]
+                
+            if trip_weight > limit:
+                overweight_flag = True
+                
+        if (overweight_flag == False) and (len(partition) < min_trips):
+            best_partition = partition
+            min_trips = len(partition)     
+
+    return best_partition
         
 # Problem 4
 def compare_cow_transport_algorithms():
@@ -93,4 +162,23 @@ def compare_cow_transport_algorithms():
     Does not return anything.
     """
     # TODO: Your code here
+    start = time.time()
+    greedy_manifest = greedy_cow_transport(cows)
+    end = time.time()
+    print("greedy trips:", len(greedy_manifest), " greedy time: ", end-start)
+    
+    start = time.time()
+    brute_manifest = brute_force_cow_transport(cows)
+    end = time.time()
+    print("brute trips:", len(brute_manifest), " brute time: ", end-start)
+    
+    
     pass
+
+
+if __name__ == '__main__':
+    
+    cows = load_cows('ps1_cow_data.txt')
+    compare_cow_transport_algorithms()
+    #greedy_cow_transport(cows)
+    #brute_force_cow_transport(cows)
