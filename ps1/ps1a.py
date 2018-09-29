@@ -95,11 +95,6 @@ def greedy_cow_transport(cows,limit=10):
     
     return manifest_names
     
-    
-        
-        
-
-    pass
 
 # Problem 3
 def brute_force_cow_transport(cows,limit=10):
@@ -180,5 +175,3 @@ if __name__ == '__main__':
     
     cows = load_cows('ps1_cow_data.txt')
     compare_cow_transport_algorithms()
-    #greedy_cow_transport(cows)
-    #brute_force_cow_transport(cows)
