@@ -20,7 +20,9 @@ from graph import Digraph, Node, WeightedEdge
 # represented?
 #
 # Answer:
-#
+# nodes: buildings
+# edges: connections between buildings
+# distance: total distance between buildings, and minimum time outside bewtween buildings
 
 
 # Problem 2b: Implementing load_map
@@ -45,12 +47,39 @@ def load_map(map_filename):
 
     # TODO
     print("Loading map from file...")
+    digraph = Digraph()
+    with open(map_filename) as mf:
+        for line in mf:
+            line_list = line.split()
+            src = line_list[0]
+            dest = line_list[1]
+            total_dist = line_list[2]
+            outdoor_dist = line_list[3]
+            
+            
+            n1 = Node(src)
+            n2 = Node(dest)
+            weighted_edge = WeightedEdge(n1, n2, total_dist, outdoor_dist)
+
+            if digraph.has_node(n1) == False:    
+                digraph.add_node(n1)
+                
+            if digraph.has_node(n2) == False:
+                digraph.add_node(n2)
+                
+            digraph.add_edge(weighted_edge)
+            
+    return digraph
 
 # Problem 2c: Testing load_map
 # Include the lines used to test load_map below, but comment them out
+#test_digraph = load_map('test_load_map.txt')
+#for i in test_digraph.edges[Node(68)]:
+#    print i
+#    
+#print test_digraph
 
-
-#
+    
 # Problem 3: Finding the Shorest Path using Optimized Search Method
 #
 # Problem 3a: Objective function
@@ -58,7 +87,9 @@ def load_map(map_filename):
 # What is the objective function for this problem? What are the constraints?
 #
 # Answer:
-#
+# minimize the travel between two buildings (nodes)
+# contraint: the amount of travel must be lest than or equal to total_dist
+#            the amount of travel outside must be less than max_dist_outdoors
 
 # Problem 3b: Implement get_best_path
 def get_best_path(digraph, start, end, path, max_dist_outdoors, best_dist,
@@ -96,7 +127,53 @@ def get_best_path(digraph, start, end, path, max_dist_outdoors, best_dist,
         max_dist_outdoors constraints, then return None.
     """
     # TODO
-    pass
+    
+
+    ns = Node(start)
+    ne = Node(end)
+    path = path + [start]
+
+    
+    if (digraph.has_node(ns) == False) or (digraph.has_node(ne) == False):
+        raise ValueError('invalid start or end node')
+    
+    elif ns == ne:
+        return path
+        
+    else:
+        for edge in digraph.get_edges_for_node(ns):
+            if str(edge.dest) not in path: #don't return to aleady-visited nodes
+                if (best_path == None) or (len(path) <= len(best_path)):
+
+                    newPath = get_best_path(digraph, str(edge.dest), str(ne), path, max_dist_outdoors, best_dist, best_path)
+                    
+                    if newPath != None: 
+                       if best_dist == None or len(newPath) <= len(best_path):
+                           
+                            distance = 0
+                            outdoor_distance = 0
+                        
+                            for i in range(len(newPath) - 1):
+                                es = digraph.get_edges_for_node(Node(newPath[i]))
+                                
+                                for e in es:
+                                    
+                                    if str(e.dest) == newPath[i+1]:
+                                        #print e.dest, newPath[i+1]
+                                        distance += int(e.get_total_distance())
+                                        outdoor_distance += int(e.get_outdoor_distance())
+                        
+                            if best_dist == None and outdoor_distance <= max_dist_outdoors:
+                                best_path = newPath
+                                best_dist = distance
+                                
+                            elif distance < best_dist and outdoor_distance <= max_dist_outdoors:
+                                best_path = newPath
+                                best_dist = distance
+                            
+ 
+    return best_path
+
 
 
 # Problem 3c: Implement directed_dfs
@@ -129,7 +206,16 @@ def directed_dfs(digraph, start, end, max_total_dist, max_dist_outdoors):
         max_dist_outdoors constraints, then raises a ValueError.
     """
     # TODO
-    pass
+    best_path = get_best_path(digraph, start, end, [], max_dist_outdoors, None, None)
+
+    
+    if best_path == None:
+        raise ValueError("No such path exists that satisfies the constraints")
+        
+    else:
+        return best_path
+
+
 
 
 # ================================================================
@@ -218,3 +304,4 @@ class Ps2Test(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+#    pass
