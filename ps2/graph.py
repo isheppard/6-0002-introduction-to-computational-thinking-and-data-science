@@ -71,7 +71,7 @@ class WeightedEdge(Edge):
     def __str__(self):
         e = '{}->{} ({}, {})'.format(self.src, self.dest, self.total_distance, self.outdoor_distance)
         return e
-        #pass  # TODO
+       # TODO
 
 
 class Digraph(object):
@@ -103,7 +103,7 @@ class Digraph(object):
             
         else:    
             self.nodes.add(node)
-        #pass  # TODO
+        # TODO
 
     def add_edge(self, edge):
         """Adds an Edge or WeightedEdge instance to the Digraph. Raises a
@@ -120,7 +120,7 @@ class Digraph(object):
         else:
             raise ValueError('one of nodes is not present')
         
-        #pass  # TODO
+        # TODO
 
 
 # ================================================================
